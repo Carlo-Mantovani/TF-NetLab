@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  send:
+    container_name: send
+    image: python:3.12-alpine
+    command: python send.py
+    ports:
+      - 8000:8000
+    networks:
+      nw:
+        ipv4_address: 172.20.0.2
+    volumes:
+      - ./send_udp.py:/send.py
+  receive:
+    container_name: receive
+    image: python:3.12-alpine
+    command: python receive.py
+    ports:
+      - 8001:8001
+    networks:
+      nw:
+        ipv4_address: 172.20.0.3
+    volumes:
+      - ./main.py:/receive.py
+
+networks:
+  nw:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+    driver_opts:
+      com.docker.network.bridge.name: br0
