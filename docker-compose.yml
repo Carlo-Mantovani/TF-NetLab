@@ -4,8 +4,8 @@ services:
     image: python:3.8
     build: 
       context: ./send
-      dockerfile: Dockerfile.send
-    command: cat main.py
+   #   dockerfile: Dockerfile.send
+    command: ls -l
     ports:
       - 8000:8000
     networks:
@@ -17,7 +17,7 @@ services:
     image: python:3.8
     build: 
       context: ./receive
-      dockerfile: Dockerfile.receive
+#      dockerfile: Dockerfile.receive
     command: ls -a
     ports:
       - 8001:8001
@@ -32,5 +32,3 @@ networks:
     ipam:
       config:
         - subnet: 172.20.0.0/16
-    driver_opts:
-      com.docker.network.bridge.name: br0
