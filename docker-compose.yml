@@ -1,28 +1,30 @@
-version: '3'
-
 services:
   send:
     container_name: send
-    image: python:3.12-alpine
-    command: python send.py
+    image: python:3.8
+    build: 
+      context: ./send
+      dockerfile: Dockerfile.send
+    command: cat main.py
     ports:
       - 8000:8000
     networks:
       nw:
         ipv4_address: 172.20.0.2
-    volumes:
-      - ./send_udp.py:/send.py
+
   receive:
     container_name: receive
-    image: python:3.12-alpine
-    command: python receive.py
+    image: python:3.8
+    build: 
+      context: ./receive
+      dockerfile: Dockerfile.receive
+    command: ls -a
     ports:
       - 8001:8001
     networks:
       nw:
         ipv4_address: 172.20.0.3
-    volumes:
-      - ./main.py:/receive.py
+
 
 networks:
   nw:

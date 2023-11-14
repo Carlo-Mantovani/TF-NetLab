@@ -2,10 +2,11 @@ import socket
 import struct
 import binascii
 import os
+import scapy.layers.all as spy
 
 
 
-network_interface = 'eth0'
+network_interface = 'enp44s0'
 
 def parse_ethernet_header(data):
     dest_mac, src_mac, eth_proto = struct.unpack('! 6s 6s H', data[:14])
@@ -34,26 +35,28 @@ def parse_udp_header(data):
 def main():
    # print(os.system("ifconfig"))
     s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
-    s.bind(('eth0', 0))
+    s.bind((network_interface, 0))
     
     while True:
         raw_data, addr = s.recvfrom(65536)
         #print (raw_data)
-        
-        dest_mac, src_mac, eth_proto, data = parse_ethernet_header(raw_data)
-        print(f'\nEthernet Header:\nDestination MAC: {dest_mac}, Source MAC: {src_mac}, Protocol: {eth_proto}')
-        print(f' \nData: {data}')
+        #use scapy to parse the packet
+        packet = spy.Ether(raw_data)
+        print(packet.show())
+       # dest_mac, src_mac, eth_proto, data = parse_ethernet_header(raw_data)
+        #print(f'\nEthernet Header:\nDestination MAC: {dest_mac}, Source MAC: {src_mac}, Protocol: {eth_proto}')
+       # print(f' \nData: {data}')
 
-        if eth_proto == 8:  # IPv4
-            version, ihl, dscp_ecn, total_length, identification, flags_fragOffset, ttl_protocol, header_checksum, src_ip, dest_ip, data = parse_ip_header(data)
+      #  if eth_proto == 8:  # IPv4
+           # version, ihl, dscp_ecn, total_length, identification, flags_fragOffset, ttl_protocol, header_checksum, src_ip, dest_ip, data = parse_ip_header(data)
 
-            if ttl_protocol == 6:  # TCP
-                src_port, dest_port, sequence, acknowledgment, offset, flags, data = parse_tcp_header(data)
+           # if ttl_protocol == 6:  # TCP
+               # src_port, dest_port, sequence, acknowledgment, offset, flags, data = parse_tcp_header(data)
 
                 # Aqui você pode adicionar lógica para verificar pacotes TCP e contar a quantidade de pacotes TCP.
 
-            elif ttl_protocol == 17:  # UDP
-                src_port, dest_port, length, data = parse_udp_header(data)
+           # elif ttl_protocol == 17:  # UDP
+                #src_port, dest_port, length, data = parse_udp_header(data)
 
                 # Aqui você pode adicionar lógica para verificar pacotes UDP e contar a quantidade de pacotes UDP.
 
