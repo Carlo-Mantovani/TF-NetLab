@@ -1,29 +1,29 @@
+version: '3'
+
 services:
   send:
-
-    build: 
-      context: ./send
-    command: ls -a
+    container_name: send
+    image: python:3.12-alpine
+    command: python send.py
     ports:
       - 8000:8000
-
-    container_name: send
     networks:
       nw:
         ipv4_address: 172.20.0.2
-
+    volumes:
+      - /home/Carlo/Desktop/TF-LabRedes/send.py:/send.py
   receive:
-
-    build: 
-      context: ./receive
-    command: ls -a
+    container_name: receive
+    image: python:3.12-alpine
+    command: bash -c "pip install -r requirements.txt && python receive.py "
     ports:
       - 8001:8001
-    container_name: receive
     networks:
       nw:
         ipv4_address: 172.20.0.3
-
+    volumes:
+      - /home/Carlo/Desktop/TF-LabRedes/receive.py:/receive.py
+      - /home/Carlo/Desktop/TF-LabRedes/requirements.txt:/requirements.txt
 
 networks:
   nw:
@@ -31,3 +31,5 @@ networks:
     ipam:
       config:
         - subnet: 172.20.0.0/16
+    driver_opts:
+      com.docker.network.bridge.name: br0

@@ -35,6 +35,7 @@ def parse_udp_header(data):
 def main():
    # print(os.system("ifconfig"))
     s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
+    print(f'Listening on {network_interface}')
     s.bind((network_interface, 0))
     
     while True:
