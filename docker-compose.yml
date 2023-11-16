@@ -1,26 +1,25 @@
 services:
   send:
-    container_name: send
-    image: python:3.8
+
     build: 
       context: ./send
-   #   dockerfile: Dockerfile.send
-    command: ls -l
+    command: ls -a
     ports:
       - 8000:8000
+
+    container_name: send
     networks:
       nw:
         ipv4_address: 172.20.0.2
 
   receive:
-    container_name: receive
-    image: python:3.8
+
     build: 
       context: ./receive
-#      dockerfile: Dockerfile.receive
     command: ls -a
     ports:
       - 8001:8001
+    container_name: receive
     networks:
       nw:
         ipv4_address: 172.20.0.3

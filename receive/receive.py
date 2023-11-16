@@ -6,7 +6,7 @@ import scapy.layers.all as spy
 
 
 
-network_interface = 'enp44s0'
+network_interface = 'eth0'
 
 def parse_ethernet_header(data):
     dest_mac, src_mac, eth_proto = struct.unpack('! 6s 6s H', data[:14])

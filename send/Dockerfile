@@ -4,6 +4,4 @@ FROM python:3.8
 WORKDIR /app
 
 # Install any needed packages specified in requirements.txt
-COPY send.py ./
-
-
+COPY ./send.py /app/
