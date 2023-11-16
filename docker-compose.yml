@@ -1,18 +1,16 @@
 services:
-  send:
-    build:
-      context: .
-    command: python send.py
-    ports:
-      - 8000:8000
-    container_name: send
+  idle:
+    image: python:3.8
+    command: sleep infinity
+    container_name: idle
     networks:
-      nw:
-        ipv4_address: 172.20.0.2
+      - nw
 
 networks:
   nw:
+    name: br0
     driver: bridge
     ipam:
       config:
         - subnet: 172.20.0.0/16
+      

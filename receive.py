@@ -6,7 +6,7 @@ import scapy.layers.all as spy
 
 
 
-network_interface = 'eth0'
+network_interface = 'br-539b655d07b4'
 
 def parse_ethernet_header(data):
     dest_mac, src_mac, eth_proto = struct.unpack('! 6s 6s H', data[:14])
@@ -32,6 +32,17 @@ def parse_udp_header(data):
     src_port, dest_port, length = struct.unpack('! H H H', data[:6])
     return src_port, dest_port, length, data[8:]
 
+
+def get_packet_layers(packet):
+    counter = 0
+    while True:
+        layer = packet.getlayer(counter)
+        if layer is None:
+            break
+
+        yield layer
+        counter += 1
+
 def main():
    # print(os.system("ifconfig"))
     s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
@@ -44,9 +55,12 @@ def main():
         #use scapy to parse the packet
         packet = spy.Ether(raw_data)
         # print protocol, source and destination MAC addresses
-        print("Protocol: ", packet.type)
-        print("Source: ", packet.src)
-        print("Destination: ", packet.dst)
+        #print("Protocol: ", packet.type)
+
+      #  print("Source: ", packet.src)
+        #print("Destination: ", packet.dst)
+        for layer in get_packet_layers(packet):
+            print(layer)
        # dest_mac, src_mac, eth_proto, data = parse_ethernet_header(raw_data)
         #print(f'\nEthernet Header:\nDestination MAC: {dest_mac}, Source MAC: {src_mac}, Protocol: {eth_proto}')
        # print(f' \nData: {data}')

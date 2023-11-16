@@ -4,3 +4,5 @@ FROM python:3.9
 WORKDIR /app
 
 COPY ./send.py /app/
+
+CMD ["python", "send.py"]
