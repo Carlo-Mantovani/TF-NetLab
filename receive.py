@@ -43,7 +43,10 @@ def main():
         #print (raw_data)
         #use scapy to parse the packet
         packet = spy.Ether(raw_data)
-        print(packet.show())
+        # print protocol, source and destination MAC addresses
+        print("Protocol: ", packet.type)
+        print("Source: ", packet.src)
+        print("Destination: ", packet.dst)
        # dest_mac, src_mac, eth_proto, data = parse_ethernet_header(raw_data)
         #print(f'\nEthernet Header:\nDestination MAC: {dest_mac}, Source MAC: {src_mac}, Protocol: {eth_proto}')
        # print(f' \nData: {data}')
