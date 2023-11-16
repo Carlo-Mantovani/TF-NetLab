@@ -1,0 +1,13 @@
+# Use the official Python image as the base image
+FROM python:3.8
+
+# Install additional utilities
+RUN apt-get update && \
+    apt-get install -y dsniff iputils-ping net-tools zsh && \
+    pip install scapy && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY ./receive.py ./
+
+# Set the default command to run when the container starts
+#CMD ["sleep", "infinity"]

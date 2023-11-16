@@ -1,10 +1,40 @@
 services:
-  idle:
-    image: python:3.8
+  attacker:
+    #image: python:3.8
+    #image: alpine
+    #command: sleep infinity
+    build: 
+      context: .
+      dockerfile: Dockerfile.attacker
+    container_name: attack
+    networks:
+      nw:
+        ipv4_address: 172.20.0.2
+    depends_on:
+      - idle
+      - victim
+  idle: 
+    image: alpine
     command: sleep infinity
     container_name: idle
     networks:
-      - nw
+      nw:
+        ipv4_address: 172.20.0.3
+  victim:
+    image: alpine
+    command: sleep infinity
+    container_name: victim
+    networks:
+      nw:
+        ipv4_address: 172.20.0.4
+  monitor:
+    build: 
+      context: .
+      dockerfile: Dockerfile.monitor
+    container_name: monitor
+    networks:
+      nw:
+        ipv4_address: 172.20.0.5
 
 networks:
   nw:
