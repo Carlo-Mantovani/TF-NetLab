@@ -8,8 +8,8 @@ services:
       dockerfile: Dockerfile.attacker
     container_name: attack
     networks:
-      nw:
-        ipv4_address: 172.20.0.2
+      nw2:
+        ipv4_address: 172.21.0.2
     depends_on:
       - idle
       - victim
@@ -45,8 +45,18 @@ networks:
     name: br0
     driver_opts:
       com.docker.network.bridge.name: br0
+      com.docker.network.bridge.host_binding_ipv4: 0.0.0.0
 
     ipam:
       config:
         - subnet: 172.20.0.0/16
+  nw2:
+    name: br1
+    driver_opts:
+      com.docker.network.bridge.name: br1
+      com.docker.network.bridge.host_binding_ipv4: 0.0.0.0
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+  
       
