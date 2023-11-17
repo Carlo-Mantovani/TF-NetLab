@@ -17,6 +17,8 @@ services:
     image: alpine
     command: sleep infinity
     container_name: idle
+    ports:
+      - "8080:8080"
     networks:
       nw:
         ipv4_address: 172.20.0.3
@@ -24,6 +26,8 @@ services:
     image: alpine
     command: sleep infinity
     container_name: victim
+    ports:
+      - "8081:8081"
     networks:
       nw:
         ipv4_address: 172.20.0.4
