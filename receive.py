@@ -7,7 +7,7 @@ import scapy.all as spy
 from threading import *
 
 
-NET_INTERFACE = 'eno1'
+NET_INTERFACE = 'br0'
 
 count_lock = Lock()
 
@@ -26,6 +26,7 @@ attack_detected = False
 
 packet_counters = [0,0,0,0,0,0,0,0]
 print_packets = False
+print_counter = True
 
 
 
@@ -42,17 +43,6 @@ class colors:
     BOLD = '\033[1m'
     UNDRLINE = '\033[4m'
 
-def get_packet_type(packet):
-    if packet.haslayer(spy.ARP):
-        if packet[spy.ARP].op == 1:
-            return 'ARP Request'
-        elif packet[spy.ARP].op == 2:
-            return 'ARP Reply'
-    elif packet.haslayer(spy.ICMP):
-        return 'ICMP'
-    else:
-        return 'UNKNOWN'
-
 def get_packet_MAC_addresses(packet):
     src_mac = packet.src
     dst_mac = packet.dst
@@ -66,7 +56,7 @@ def get_packet_IP_addresses(packet):
     return src_ip, dst_ip
 
 def get_packet_info(packet):
-    packet_type = get_packet_type(packet)
+
     src_mac, dst_mac = get_packet_MAC_addresses(packet)
     if packet.haslayer(spy.IP):
         src_ip, dst_ip = get_packet_IP_addresses(packet)
@@ -74,22 +64,12 @@ def get_packet_info(packet):
         src_ip = ''
         dst_ip = ''
     if print_packets:
-        print_packet_info(packet, packet_type, src_mac, dst_mac, src_ip, dst_ip)
-    return packet_type, src_mac, dst_mac, src_ip, dst_ip
+        print_packet_info(packet,src_mac, dst_mac, src_ip, dst_ip)
+    return src_mac, dst_mac, src_ip, dst_ip
 
-def print_packet_info(packet, packet_type, src_mac, dst_mac, src_ip, dst_ip):
-    if packet_type == 'ARP Request' or packet_type == 'ARP Reply':
-        print (f'\nPacket Type: {packet_type}')
-        #print arp message
-        print(f'{packet.getlayer(spy.ARP)}')
-  
-    elif packet_type == 'ICMP':
-        print (f'\nPacket Type: {packet_type}')
-        #print icmp message
-        print(f'{packet.getlayer(spy.ICMP)}')
-    else:
-        print (f'\nPacket Type: {packet_type}')
-        print (f'{packet.summary()}')
+def print_packet_info(packet, src_mac, dst_mac, src_ip, dst_ip):
+
+    print (f'{packet.summary()}')
     print (f'Source MAC: {src_mac}, Destination MAC: {dst_mac}')
     if src_ip != '' and dst_ip != '':
         print (f'Source IP: {src_ip}, Destination IP: {dst_ip}')
@@ -115,7 +95,7 @@ def print_packet_counters():
 def handle_packet(raw_data):
     global icmp_count
     packet = spy.Ether(raw_data)
-    packet_type, src_mac, dst_mac, src_ip, dst_ip = get_packet_info(packet)
+    src_mac, dst_mac, src_ip, dst_ip = get_packet_info(packet)
     count_packets(packet)
   
 
@@ -217,7 +197,8 @@ def monitor_ICMP():
 def show_packet_counters():
     while True:
         if not attack_detected:
-            print_packet_counters()
+            if print_counter:
+                print_packet_counters()
             time.sleep(6)
 
 def receive_packets():
@@ -238,7 +219,7 @@ def receive_packets():
         thread.start()
 
 def main():
-    global attack_detected, print_packets
+    global attack_detected, print_packets, print_counter
 
 
     arp_monitor_thread = Thread(target=monitor_ARP)
@@ -258,14 +239,23 @@ def main():
 
         #Enable/Disable Packet Printing
 
-        _input = input(f"{colors.YELLOW}Control Menu \n1. Enable/Disable Packet Printing\n2. Exit\n {colors.ENDC}")
+        _input = input(f"{colors.YELLOW}Control Menu \n1. Enable/Disable Packet Counting Printing \n2. Enable/Disable Packet Details Printing\n3. Exit\n {colors.ENDC}")
         try:
-            if _input == 1:
+            if _input == "1":
+                if print_counter:
+                    print_counter = False
+                    print (f"{colors.FAIL}Packet Counting Printing Disabled{colors.ENDC}")
+                else:
+                    print_counter = True
+                    print (f"{colors.OKGREEN}Packet Counting Printing Enabled{colors.ENDC}")
+            elif _input == "2":
                 if print_packets:
                     print_packets = False
+                    print (f"{colors.FAIL}Packet Details Printing Disabled{colors.ENDC}")
                 else:
                     print_packets = True
-            elif _input == 2:
+                    print (f"{colors.OKGREEN}Packet Details Printing Enabled{colors.ENDC}")
+            elif _input == "3":
                 exit()
             else:
                 print (f"{colors.FAIL}Invalid input{colors.ENDC}")
