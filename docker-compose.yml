@@ -21,7 +21,7 @@ services:
       - "8080:8080"
     networks:
       nw:
-        ipv4_address: 172.20.0.3
+        ipv4_address: 172.20.0.2
   victim:
     image: alpine
     command: sleep infinity
@@ -30,7 +30,7 @@ services:
       - "8081:8081"
     networks:
       nw:
-        ipv4_address: 172.20.0.4
+        ipv4_address: 172.20.0.3
   monitor:
     build: 
       context: .
@@ -38,7 +38,7 @@ services:
     container_name: monitor
     networks:
       nw:
-        ipv4_address: 172.20.0.5
+        ipv4_address: 172.20.0.4
 
 networks:
   nw:

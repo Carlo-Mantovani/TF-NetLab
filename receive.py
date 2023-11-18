@@ -7,6 +7,7 @@ import scapy.all as spy
 from threading import *
 
 
+NET_INTERFACE = 'br0'
 
 count_lock = Lock()
 
@@ -26,7 +27,6 @@ attack_detected = False
 packet_counters = [0,0,0,0,0,0,0,0]
 print_packets = False
 
-network_interface = 'eno1'
 
 
 class colors:
@@ -156,18 +156,23 @@ def count_packets(packet):
 def monitor_ARP():
     global attack_detected
     while True:
-        print (f'{colors.YELLOW} Monitoring ARP {colors.ENDC}')
+        print (f'{colors.YELLOW} ARP Monitor {colors.ENDC}')
+        print (f'{colors.YELLOW}      Monitoring ARP for 10 seconds {colors.ENDC}')
+        old_arpRqst_count = packet_counters[0]
+        old_arpRply_count = packet_counters[1]
         time.sleep(10)
-    # print (f'ARP Request/Reply count in 10 seconds: {arpRQ_count}')
-        #if arpRQ_count > 30:
-        #   print (f'{colors.WARNING} ARP flood detected {colors.ENDC}')
-        #    count_lock.acquire()
-        ##   attack_detected = True
-        #   count_lock.release()
-        #else:
-    #     print (f'{colors.OKGREEN} ARP flood not detected {colors.ENDC}')
-    # monitoring_ARP = False
-    # count_lock.acquire()
+        arpRqst_diff = packet_counters[0] - old_arpRqst_count
+        arpRply_diff = packet_counters[1] - old_arpRply_count
+        reply_ratio = arpRply_diff / arpRqst_diff
+        print(f'{colors.YELLOW}      ARP Request/Reply Ratio in 10s: {reply_ratio}{colors.ENDC}')
+        if reply_ratio > 1.3:
+            print (f'{colors.FAIL}      ARP Spoofing detected {colors.ENDC}')
+            count_lock.acquire()
+            attack_detected = True
+            count_lock.release()
+        else:
+            print (f'{colors.OKGREEN}      ARP Spoofing not detected {colors.ENDC}')
+            
 
     
 
@@ -200,7 +205,7 @@ def show_packet_counters():
 def receive_packets():
     global attack_detected
     s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
-    s.bind((network_interface, 0))
+    s.bind((NET_INTERFACE, 0))
     while True:
         if attack_detected:
                     print (f'{colors.FAIL} Attack detected, waiting 10 seconds {colors.ENDC}')
