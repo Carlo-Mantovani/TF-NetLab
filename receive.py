@@ -7,7 +7,7 @@ import scapy.all as spy
 from threading import *
 
 
-NET_INTERFACE = 'br0'
+NET_INTERFACE = 'eno1'
 
 count_lock = Lock()
 
@@ -95,9 +95,9 @@ def print_packet_info(packet, packet_type, src_mac, dst_mac, src_ip, dst_ip):
         print (f'Source IP: {src_ip}, Destination IP: {dst_ip}')
 
 def print_packet_counters():
-
-    print (f'\n{colors.ORANGE}Packet Counters {colors.OKBLUE}')
-    print (f'-'*50)
+    print('')
+    print (f'{colors.OKBLUE}-'*50)
+    print (f'\n{colors.FAIL}Packet Counters\n {colors.ENDC}')
     print (f'{colors.ORANGE} Data Link Layer {colors.OKBLUE}')
     print (f'   ARP Request Count: {packet_counters[0]}')
     print (f'   ARP Reply Count: {packet_counters[1]}')
@@ -155,52 +155,70 @@ def count_packets(packet):
 
 def monitor_ARP():
     global attack_detected
+    time.sleep(3)
     while True:
-        print (f'{colors.YELLOW} ARP Monitor {colors.ENDC}')
-        print (f'{colors.YELLOW}      Monitoring ARP for 10 seconds {colors.ENDC}')
-        old_arpRqst_count = packet_counters[0]
-        old_arpRply_count = packet_counters[1]
-        time.sleep(10)
-        arpRqst_diff = packet_counters[0] - old_arpRqst_count
-        arpRply_diff = packet_counters[1] - old_arpRply_count
-        reply_ratio = arpRply_diff / arpRqst_diff
-        print(f'{colors.YELLOW}      ARP Request/Reply Ratio in 10s: {reply_ratio}{colors.ENDC}')
-        if reply_ratio > 1.3:
-            print (f'{colors.FAIL}      ARP Spoofing detected {colors.ENDC}')
-            count_lock.acquire()
-            attack_detected = True
-            count_lock.release()
-        else:
-            print (f'{colors.OKGREEN}      ARP Spoofing not detected {colors.ENDC}')
-            
+        if not attack_detected:
+            print('')
+            print (f'{colors.YELLOW}-'*50)
+            print (f'{colors.YELLOW} ARP Monitor {colors.ENDC}')
+            print (f'{colors.YELLOW}      Monitoring ARP for 15 seconds {colors.ENDC}')
+            print (f'{colors.YELLOW}-'*50)
+            old_arpRqst_count = packet_counters[0]
+            old_arpRply_count = packet_counters[1]
+            time.sleep(15)
+            arpRqst_diff = packet_counters[0] - old_arpRqst_count
+            arpRply_diff = packet_counters[1] - old_arpRply_count
+            if arpRqst_diff == 0:
+                reply_ratio = 0
+            else:
+                reply_ratio = arpRply_diff / arpRqst_diff
+            print('')
+            print (f'{colors.YELLOW}-'*50)
+            print(f'{colors.YELLOW} ARP Request/Reply Ratio in 15s: {reply_ratio}{colors.ENDC}')
+            if reply_ratio > 3.0:
+                print (f'{colors.FAIL}      ARP Spoofing detected {colors.ENDC}')
+                count_lock.acquire()
+                attack_detected = True
+                count_lock.release()
+            else:
+                print (f'{colors.OKGREEN}      ARP Spoofing not detected {colors.ENDC}')
+            print (f'{colors.YELLOW}-'*50 + f'{colors.ENDC}' )
+
 
     
 
 def monitor_ICMP():
     global attack_detected
-
+    time.sleep(1.5)
     while True:
-        print (f'{colors.PINK}-'*50)
-        print (f'{colors.ORANGE} ICMP/ICMPv6 monitor{colors.ENDC}')
-        print (f'{colors.PINK}      Monitoring ICMP/ICMPv6 for 5 seconds {colors.ENDC}')
-        old_count = packet_counters[2] + packet_counters[3]
-        time.sleep(5)
-        icmp_diff = (packet_counters[2] + packet_counters[3]) - old_count
-        print (f'{colors.PINK}      ICMP/ICMPv6 count in 5s: {icmp_diff}.{colors.ENDC}')
-        if icmp_diff > 100:
-            print (f'{colors.FAIL}      ICMP flood detected {colors.ENDC}')
-            count_lock.acquire()
-            attack_detected = True
-            count_lock.release()
-        else:
-            print (f'{colors.OKGREEN}       ICMP flood not detected{colors.ENDC}')
+        if not attack_detected:
+            print('')
+            print (f'{colors.PINK}-'*50)
+            print (f'{colors.ORANGE} ICMP/ICMPv6 monitor{colors.ENDC}')
+            print (f'{colors.PINK}      Monitoring ICMP/ICMPv6 for 10 seconds {colors.ENDC}')
+            print (f'{colors.PINK}-'*50)
+            old_count = packet_counters[2] + packet_counters[3]
+            time.sleep(10)
+            icmp_diff = (packet_counters[2] + packet_counters[3]) - old_count
+            print('')
+            print (f'{colors.PINK}-'*50)
+            print (f'{colors.PINK} ICMP/ICMPv6 count in 10s: {icmp_diff}.{colors.ENDC}')
+            if icmp_diff > 100:
+                print (f'{colors.FAIL}      ICMP flood detected {colors.ENDC}')
+                count_lock.acquire()
+                attack_detected = True
+                count_lock.release()
+            else:
+                print (f'{colors.OKGREEN}      ICMP flood not detected{colors.ENDC}')
+            print (f'{colors.PINK}-'*50 + f'{colors.ENDC}' )
+            
 
 
 def show_packet_counters():
     while True:
         if not attack_detected:
             print_packet_counters()
-            time.sleep(5)
+            time.sleep(6)
 
 def receive_packets():
     global attack_detected
@@ -221,7 +239,6 @@ def receive_packets():
 
 def main():
     global attack_detected, print_packets
-   # print(os.system("ifconfig"))
 
 
     arp_monitor_thread = Thread(target=monitor_ARP)

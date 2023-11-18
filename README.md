@@ -1,7 +1,8 @@
 
 # Start
 ```
-./run.sh
+./run.sh 
+sudo docker compose run --build --rm monitor zsh //for arp spoofing
 ```
 Or
 
