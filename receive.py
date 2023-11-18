@@ -1,20 +1,16 @@
 import socket
-import struct
-import binascii
-import os
 import time
 import scapy.all as spy
 from threading import *
 
-
 NET_INTERFACE = 'br0'
 
 count_lock = Lock()
-
 attack_detected = False
+print_packets = False
+print_counter = True
 
-
-#counter positions:
+#packet_counter positions:
 #0 = ARP Request Count
 #1 = ARP Reply Count
 #2 = ICMP count
@@ -25,10 +21,6 @@ attack_detected = False
 #7 = UDP count
 
 packet_counters = [0,0,0,0,0,0,0,0]
-print_packets = False
-print_counter = True
-
-
 
 class colors:
     HEADER = '\033[95m'
@@ -56,7 +48,6 @@ def get_packet_IP_addresses(packet):
     return src_ip, dst_ip
 
 def get_packet_info(packet):
-
     src_mac, dst_mac = get_packet_MAC_addresses(packet)
     if packet.haslayer(spy.IP):
         src_ip, dst_ip = get_packet_IP_addresses(packet)
@@ -98,7 +89,6 @@ def handle_packet(raw_data):
     src_mac, dst_mac, src_ip, dst_ip = get_packet_info(packet)
     count_packets(packet)
   
-
 def count_packets(packet):
     global packet_counters
     if packet.haslayer(spy.ARP):
@@ -164,9 +154,6 @@ def monitor_ARP():
                 print (f'{colors.OKGREEN}      ARP Spoofing not detected {colors.ENDC}')
             print (f'{colors.YELLOW}-'*50 + f'{colors.ENDC}' )
 
-
-    
-
 def monitor_ICMP():
     global attack_detected
     time.sleep(1.5)
@@ -192,8 +179,6 @@ def monitor_ICMP():
                 print (f'{colors.OKGREEN}      ICMP flood not detected{colors.ENDC}')
             print (f'{colors.PINK}-'*50 + f'{colors.ENDC}' )
             
-
-
 def show_packet_counters():
     while True:
         if not attack_detected:
@@ -220,8 +205,6 @@ def receive_packets():
 
 def main():
     global attack_detected, print_packets, print_counter
-
-
     arp_monitor_thread = Thread(target=monitor_ARP)
     arp_monitor_thread.daemon = True
     arp_monitor_thread.start()
@@ -236,9 +219,6 @@ def main():
     receive_thread.start()
     
     while True:
-
-        #Enable/Disable Packet Printing
-
         _input = input(f"{colors.YELLOW}Control Menu \n1. Enable/Disable Packet Counting Printing \n2. Enable/Disable Packet Details Printing\n3. Exit\n {colors.ENDC}")
         try:
             if _input == "1":
@@ -262,10 +242,6 @@ def main():
         except Exception as e:
             print (f"{colors.FAIL}Invalid input{colors.ENDC}")
             
-        
 
-        
-        
-     
 if __name__ == "__main__":
     main()
