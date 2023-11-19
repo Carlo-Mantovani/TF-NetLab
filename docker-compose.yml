@@ -31,14 +31,17 @@ services:
     networks:
       nw:
         ipv4_address: 172.20.0.3
-  monitor:
+  spoofer:
     build: 
       context: .
-      dockerfile: Dockerfile.monitor
-    container_name: monitor
+      dockerfile: Dockerfile.spoofer
+    container_name: spoofer
     networks:
       nw:
         ipv4_address: 172.20.0.4
+    depends_on:
+      - victim
+      - idle
 
 networks:
   nw:
