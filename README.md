@@ -71,7 +71,6 @@ ping 172.20.0.2
 ```
 sudo docker compose run --build --rm spoofer zsh
 ```
-
 - In Spoofer container:
 ```
 arpspoof -i eth0 -t 172.20.0.3 172.20.0.2
@@ -82,7 +81,7 @@ arpspoof -i eth0 -t 172.20.0.3 172.20.0.2
 ```
 ./down.sh
 ```
-- Or
+- OR
 ```
 sudo docker-compose down
 ```
