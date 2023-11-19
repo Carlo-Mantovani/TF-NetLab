@@ -162,18 +162,18 @@ def monitor_ARP():
             print_lock.release() # Release the lock
             old_arpRqst_count = packet_counters[0] # Get the old ARP request count
             old_arpRply_count = packet_counters[1] # Get the old ARP reply count
+ 
             time.sleep(15)
             arpRqst_diff = packet_counters[0] - old_arpRqst_count # Get the difference between the old and new ARP request count
             arpRply_diff = packet_counters[1] - old_arpRply_count # Get the difference between the old and new ARP reply count
             if arpRqst_diff == 0: # If the ARP request count is 0, set the reply ratio to 0 to avoid division by 0
-                reply_ratio = 0
-            else:
-                reply_ratio = arpRply_diff / arpRqst_diff # Calculate the ARP request/reply ratio
+                arpRqst_diff = 1
+            reply_ratio = arpRply_diff / arpRqst_diff # Calculate the ARP request/reply ratio
             print_lock.acquire() # Acquire the lock so the monitoring results can be printed without interruption
             print('')
             print (f'{colors.YELLOW}-'*50)
-            print(f'{colors.YELLOW} ARP Request/Reply Ratio in 15s: {reply_ratio}{colors.ENDC}')
-            if reply_ratio > 3.0: # If the ARP request/reply ratio is greater than 3.0, an ARP spoofing attack is detected
+            print(f'{colors.YELLOW} ARP Reply/Request Ratio in 15s: {reply_ratio}{colors.ENDC}')
+            if reply_ratio > 3.0: # If the ARP Reply/Request ratio is greater than 3.0, an ARP spoofing attack is detected
                 print (f'{colors.FAIL}      ARP Spoofing detected {colors.ENDC}')
                 attack_lock.acquire()
                 attack_detected = True
@@ -228,8 +228,10 @@ def receive_packets():
     global attack_detected
 
     while True:
-        if attack_detected:
+        if attack_detected: # If an attack is detected, wait 10 seconds before receiving packets again
+                    print_lock.acquire()
                     print (f'{colors.FAIL} Attack detected, waiting 10 seconds {colors.ENDC}')
+                    print_lock.release()
                     time.sleep(10)
                     attack_lock.acquire()
                     attack_detected = False

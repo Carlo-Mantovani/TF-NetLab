@@ -28,9 +28,9 @@ In a different terminal:
 sudo iptables -I DOCKER-ISOLATION-STAGE-2 -o br0 -i br1 -j ACCEPT
 sudo iptables -I DOCKER-ISOLATION-STAGE-2 -o br1 -i br0 -j ACCEPT
 ```
-- Lastly, run the socket raw in the local machine, outside the containers:
+- Lastly, run the sniffer in the local machine, outside the containers:
 ```
-sudo python3 receive.py
+sudo python3 sniffer.py
 ```
 
 
