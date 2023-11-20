@@ -62,7 +62,7 @@ def get_packet_IP_addresses(packet):
 
 # Ping the network interface to avoid deadlock
 def ping_network_interface():
-    os.system(f'ping -c 1 -I {NET_INTERFACE} localhost > /dev/null &')
+   os.system(f'ping -c 1 -I {NET_INTERFACE} 8.8.8.8 > /dev/null 2>&1 &')
 
 # Get the packet information
 def get_packet_info(packet):
