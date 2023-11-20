@@ -7,7 +7,7 @@ RUN apt-get update && \
     pip install scapy && \
     rm -rf /var/lib/apt/lists/*
 
-COPY ./receive.py ./
+COPY ./sniffer.py ./
 
 # Set the default command to run when the container starts
 #CMD ["sleep", "infinity"]
