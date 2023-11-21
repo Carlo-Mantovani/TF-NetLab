@@ -4,8 +4,9 @@ import scapy.all as spy
 import os
 from threading import *
 
-NET_INTERFACE = 'br0'
-
+NET_INTERFACE = 'br0' # Network interface to sniff packets from
+ICMP_ATTACK_QTD = 100 # ICMP/ICMPv6 count threshold for detecting ICMP flood
+ARP_SPOOF_REPLY_RATIO = 3.0 # ARP Reply/Request ratio threshold for detecting ARP spoofing
 
 # Locks for thread safety
 count_lock = Lock()
@@ -173,10 +174,11 @@ def monitor_ARP():
             print('')
             print (f'{colors.YELLOW}-'*50)
             print(f'{colors.YELLOW} ARP Reply/Request Ratio in 15s: {reply_ratio}{colors.ENDC}')
-            if reply_ratio > 3.0: # If the ARP Reply/Request ratio is greater than 3.0, an ARP spoofing attack is detected
+            if reply_ratio > ARP_SPOOF_REPLY_RATIO: # If the ARP Reply/Request ratio is greater than 3.0, an ARP spoofing attack is detected
                 print (f'{colors.FAIL}      ARP Spoofing detected {colors.ENDC}')
                 attack_lock.acquire()
                 attack_detected = True
+                ping_network_interface() # Ping the network interface to avoid deadlock
                 attack_lock.release()
             else:
                 print (f'{colors.OKGREEN}      ARP Spoofing not detected {colors.ENDC}')
@@ -203,7 +205,7 @@ def monitor_ICMP():
             print('')
             print (f'{colors.PINK}-'*50)
             print (f'{colors.PINK} ICMP/ICMPv6 count in 10s: {icmp_diff}.{colors.ENDC}') 
-            if icmp_diff > 100: # If the difference is greater than 100, an ICMP flood is detected
+            if icmp_diff > ICMP_ATTACK_QTD: # If the difference is greater than 100, an ICMP flood is detected
                 print (f'{colors.FAIL}      ICMP flood detected {colors.ENDC}')
                 attack_lock.acquire()
                 attack_detected = True # Set the attack_detected flag to True
@@ -238,6 +240,7 @@ def receive_packets():
                     attack_lock.release()
 
         raw_data, addr = s.recvfrom(65536) # Buffer size is 65536 bytes (64KB)
+        #print(f'{colors.OKBLUE}Packet Received{colors.ENDC}')
 
         # Create a thread to handle the packet
         thread = Thread(target=handle_packet, args=(raw_data,))

